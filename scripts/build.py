@@ -25,32 +25,36 @@ if c: cfg.update({k:c[k] for k in ('nombre','temporada','pistas','stb') if k in 
 data={'jugadores':jug,'jornadas':jor,'config':cfg,
  'clas':one('liga','clasificacion.json'),'cal':one('liga','calendario.json'),'jug':one('liga','actas.json'),'plant':one('liga','plantillas.json'),'t2526':one('historico','t2526.json')}
 import hashlib
-huella=hashlib.sha256((json.dumps(data,sort_keys=True,ensure_ascii=False)+s).encode()).hexdigest()[:16]
+cfgw0=json.load(open(os.path.join(ROOT,'config.json'))) if os.path.exists(os.path.join(ROOT,'config.json')) else {}
+huella=hashlib.sha256((json.dumps(data,sort_keys=True,ensure_ascii=False)+s+json.dumps(cfgw0)+open(os.path.join(ROOT,'scripts','disp.js')).read()+open(__file__).read()).encode()).hexdigest()[:16]
 dest=os.path.join(ROOT,'index.html')
 if os.path.exists(dest) and ('<!-- datos:'+huella+' -->') in open(dest).read():
     print('Sin cambios: index.html no se modifica');raise SystemExit(0)
+cfgw=json.load(open(os.path.join(ROOT,'config.json'))) if os.path.exists(os.path.join(ROOT,'config.json')) else {}
+DISP=cfgw.get('disp_url','')
+DISPJS=open(os.path.join(ROOT,'scripts','disp.js')).read()
 hoy=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2))).strftime('%d/%m/%Y %H:%M')
 RO=['config','nuevo-jugador','editar-jugador','nueva-jornada','editar-jornada','disp','conv','convocar-disp','borrar-jugador','borrar-jornada','borrar-ejemplos']
 rep=[
  ("const TABS=[['resumen','Resumen'],['liga','Clasificación'],",
-  "const TABS=[['resumen','Resumen'],['liga','Clasificación'],['calendario','Calendario'],"),
- ("S.tab==='liga'?vLiga():","S.tab==='liga'?vLiga():S.tab==='calendario'?vCalendario():"),
+  "const TABS=[...(window.__DISP_URL?[['mia','Mi disponibilidad']]:[]),['resumen','Resumen'],['liga','Clasificación'],['calendario','Calendario'],"),
+ ("S.tab==='liga'?vLiga():","S.tab==='liga'?vLiga():S.tab==='calendario'?vCalendario():S.tab==='mia'?vMia():"),
  ('<button class="btn-ghost" data-act="config" type="button">Ajustes</button>',''),
  ("const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,id=t.dataset.id;",
   "const t=e.target.closest('[data-act]');if(!t)return;const a=t.dataset.act,id=t.dataset.id;if(S.mode==='static'&&RO.has(a))return;"),
  ("  const s=e.target;\n  if(s.matches('select[data-liga-j]'))","  const s=e.target;if(S.mode==='static'&&s.matches('select[data-pair]'))return;\n  if(s.matches('select[data-liga-j]'))"),
  ("  const s=e.target;if(!s.matches('input[data-score]'))return;","  const s=e.target;if(!s.matches('input[data-score]')||S.mode==='static')return;"),
- ("render();init();","const RO=new Set("+json.dumps(RO)+");(function(){const D=window.__DATA;S.jugadores=D.jugadores;S.jornadas=D.jornadas;S.config=D.config;S.liga={clas:D.clas,cal:D.cal,jug:D.jug,plant:D.plant,t2526:D.t2526};S.loaded={jugadores:true,jornadas:true};S.mode='static';document.body.classList.add('ro');const _r=render;render=function(){_r();document.querySelectorAll('#main input[data-score],#main select[data-pair]').forEach(x=>x.disabled=true)};render()})();"),
- ("<title>Liga de Dobles</title>","<title>Club Egara · Penya Arlequinada</title>\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">\n<meta charset=\"utf-8\">"),
+ ("render();init();",DISPJS+"\nconst RO=new Set("+json.dumps(RO)+");(function(){const D=window.__DATA;S.jugadores=D.jugadores;S.jornadas=D.jornadas;S.config=D.config;S.liga={clas:D.clas,cal:D.cal,jug:D.jug,plant:D.plant,t2526:D.t2526};S.loaded={jugadores:true,jornadas:true};S.mode='static';S.tab=window.__DISP_URL?'mia':'resumen';document.body.classList.add('ro');const _r=render;render=function(){_r();document.querySelectorAll('#main input[data-score],#main select[data-pair]').forEach(x=>x.disabled=true)};render();cargarRemoto()})();"),
+ ("<title>Liga de Dobles</title>","<title>Club Egara · Penya Arlequinada</title>\n<meta name=\"viewport\" content=\"width=device-width,initial-scale=1,viewport-fit=cover\">\n<meta charset=\"utf-8\">\n<link rel=\"manifest\" href=\"manifest.json\">\n<link rel=\"apple-touch-icon\" href=\"icon-180.png\">\n<link rel=\"icon\" href=\"icon-192.png\">\n<meta name=\"apple-mobile-web-app-capable\" content=\"yes\">\n<meta name=\"mobile-web-app-capable\" content=\"yes\">\n<meta name=\"apple-mobile-web-app-title\" content=\"Egara\">\n<meta name=\"theme-color\" content=\"#1d4e89\">"),
  ("Pídeme que la actualice desde la web de la federación y aparecerá aquí.","Todavía no hay datos."),
  ("Pulsa un jugador para editarlo.",""),
 ]
 for a,b in rep:
     assert s.count(a)==1,a[:70]
     s=s.replace(a,b)
-css=".ro "+", .ro ".join(f'[data-act="{a}"]' for a in ['nuevo-jugador','nueva-jornada','editar-jornada','convocar-disp','borrar-ejemplos'])+"{display:none!important}\n.ro .seg button,.ro .conv,.ro tr.click{pointer-events:none;cursor:default}\n.ro .seg button:not(.on),.ro .conv:not(.on){opacity:.55}\n.ro .pista select:disabled,.ro .sets input:disabled{opacity:1;color:var(--ink)}\n"
+css=".ro "+", .ro ".join(f'[data-act="{a}"]' for a in ['nuevo-jugador','nueva-jornada','editar-jornada','convocar-disp','borrar-ejemplos'])+"{display:none!important}\n.ro .seg button,.ro .conv,.ro tr.click{pointer-events:none;cursor:default}\n.ro .seg button:not(.on),.ro .conv:not(.on){opacity:.55}\n.ro .seg button.mia{pointer-events:auto;cursor:pointer;opacity:1}\n.ro .pista select:disabled,.ro .sets input:disabled{opacity:1;color:var(--ink)}\n"
 s=s.replace('@media (prefers-reduced-motion:reduce)',css+'@media (prefers-reduced-motion:reduce)',1)
-s=s.replace('<script>\nconst $=','<script>window.__DATA='+json.dumps(data,ensure_ascii=False).replace('</','<\\/')+';</script>\n<script>\nconst $=',1)
+s=s.replace('<script>\nconst $=','<script>window.__DISP_URL='+json.dumps(DISP)+';window.__DATA='+json.dumps(data,ensure_ascii=False).replace('</','<\\/')+';</script>\n<script>\nconst $=',1)
 doc='<!doctype html>\n<html lang="es">\n<head>\n'+s.split('<header')[0]+'\n<style>body{margin:0}</style>\n</head>\n<body>\n<header'+s.split('<header',1)[1]+'\n<footer class="wrap muted" style="padding-block:0 32px;font-size:12px">Versión de consulta. Actualizado el '+hoy+'.</footer>\n</body>\n</html>\n'
 doc=doc.replace('<!doctype html>','<!doctype html>\n<!-- datos:'+huella+' -->',1)
 open(dest,'w').write(doc)
