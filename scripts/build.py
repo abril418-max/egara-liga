@@ -24,6 +24,11 @@ c=one('config','equipo.json')
 if c: cfg.update({k:c[k] for k in ('nombre','temporada','pistas','stb') if k in c})
 data={'jugadores':jug,'jornadas':jor,'config':cfg,
  'clas':one('liga','clasificacion.json'),'cal':one('liga','calendario.json'),'jug':one('liga','actas.json'),'plant':one('liga','plantillas.json'),'t2526':one('historico','t2526.json')}
+import hashlib
+huella=hashlib.sha256((json.dumps(data,sort_keys=True,ensure_ascii=False)+s).encode()).hexdigest()[:16]
+dest=os.path.join(ROOT,'index.html')
+if os.path.exists(dest) and ('<!-- datos:'+huella+' -->') in open(dest).read():
+    print('Sin cambios: index.html no se modifica');raise SystemExit(0)
 hoy=datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=2))).strftime('%d/%m/%Y %H:%M')
 RO=['config','nuevo-jugador','editar-jugador','nueva-jornada','editar-jornada','disp','conv','convocar-disp','borrar-jugador','borrar-jornada','borrar-ejemplos']
 rep=[
@@ -47,5 +52,6 @@ css=".ro "+", .ro ".join(f'[data-act="{a}"]' for a in ['nuevo-jugador','nueva-jo
 s=s.replace('@media (prefers-reduced-motion:reduce)',css+'@media (prefers-reduced-motion:reduce)',1)
 s=s.replace('<script>\nconst $=','<script>window.__DATA='+json.dumps(data,ensure_ascii=False).replace('</','<\\/')+';</script>\n<script>\nconst $=',1)
 doc='<!doctype html>\n<html lang="es">\n<head>\n'+s.split('<header')[0]+'\n<style>body{margin:0}</style>\n</head>\n<body>\n<header'+s.split('<header',1)[1]+'\n<footer class="wrap muted" style="padding-block:0 32px;font-size:12px">Versión de consulta. Actualizado el '+hoy+'.</footer>\n</body>\n</html>\n'
-open(os.path.join(ROOT,'index.html'),'w').write(doc)
+doc=doc.replace('<!doctype html>','<!doctype html>\n<!-- datos:'+huella+' -->',1)
+open(dest,'w').write(doc)
 print('index.html generado',len(doc),'bytes')
