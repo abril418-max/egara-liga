@@ -54,7 +54,7 @@ for a,b in rep:
     s=s.replace(a,b)
 css=".ro "+", .ro ".join(f'[data-act="{a}"]' for a in ['nuevo-jugador','nueva-jornada','editar-jornada','convocar-disp','borrar-ejemplos'])+"{display:none!important}\n.ro .seg button,.ro .conv,.ro tr.click{pointer-events:none;cursor:default}\n.ro .seg button:not(.on),.ro .conv:not(.on){opacity:.55}\n.ro .seg button.mia{pointer-events:auto;cursor:pointer;opacity:1}\n.ro .pista select:disabled,.ro .sets input:disabled{opacity:1;color:var(--ink)}\n"
 s=s.replace('@media (prefers-reduced-motion:reduce)',css+'@media (prefers-reduced-motion:reduce)',1)
-s=s.replace('<script>\nconst $=','<script>window.__DISP_URL='+json.dumps(DISP)+';window.__DATA='+json.dumps(data,ensure_ascii=False).replace('</','<\\/')+';</script>\n<script>\nconst $=',1)
+s=s.replace('<script>\nconst $=','<script>window.__DISP_URL='+json.dumps(DISP)+';window.__TEAM_CODE='+json.dumps(cfgw.get('team_code',''))+';window.__DATA='+json.dumps(data,ensure_ascii=False).replace('</','<\\/')+';</script>\n<script>\nconst $=',1)
 doc='<!doctype html>\n<html lang="es">\n<head>\n'+s.split('<header')[0]+'\n<style>body{margin:0}</style>\n</head>\n<body>\n<header'+s.split('<header',1)[1]+'\n<footer class="wrap muted" style="padding-block:0 32px;font-size:12px">Versión de consulta. Actualizado el '+hoy+'.</footer>\n</body>\n</html>\n'
 doc=doc.replace('<!doctype html>','<!doctype html>\n<!-- datos:'+huella+' -->',1)
 open(dest,'w').write(doc)
