@@ -1,9 +1,9 @@
 {
- "name": "Club Egara · Penya Arlequinada",
+ "name": "Club Egara . Penya Arlequinada",
  "short_name": "Egara",
  "start_url": "./",
  "display": "standalone",
- "background_color": "#eef2f6",
+ "background_color": "#ffffff",
  "theme_color": "#1d4e89",
  "lang": "es",
  "icons": [
