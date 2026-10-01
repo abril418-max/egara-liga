@@ -682,7 +682,9 @@ function mConfig(){
     <div class="row"><button class="btn" type="submit">Guardar</button><button class="btn sec" type="button" data-act="cerrar">Cancelar</button></div></form>`);
 }
 function cabeceraJornada(jo,ca){
-  return `${S.config.nombre||'Equipo'} · Jornada ${jo.numero||''}\n${fFecha(jo.fecha,true)}${jo.hora?(ca?' a les ':' a las ')+jo.hora:''}\nvs ${jo.rival||(ca?'rival per definir':'rival por definir')} (${jo.local===false?(ca?'fora':'fuera'):(ca?'a casa':'en casa')})${jo.sede?' · '+jo.sede:''}`;
+  const fuera=jo.local===false;const rival=jo.rival||(ca?'rival per definir':'rival por definir');
+  const juego=ca?(fuera?'Juguem A FORA contra ':'Juguem A CASA contra '):(fuera?'Jugamos FUERA contra ':'Jugamos EN CASA contra ');
+  return `${S.config.nombre||'Equipo'} · Jornada ${jo.numero||''}\n${fFecha(jo.fecha,true)}${jo.hora?(ca?' a les ':' a las ')+jo.hora:''}\n${juego}${rival}${jo.sede?`\n${ca?'Lloc':'Lugar'}: ${jo.sede}`:''}`;
 }
 function textoConvocatoria(jo){
   const ca=window.__LOC==='ca-ES';const conv=(jo.conv||[]).map(nombre);
