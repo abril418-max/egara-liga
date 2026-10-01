@@ -5,7 +5,7 @@ document.documentElement.lang=LANG;
 const CA_EXACT={
 '% juegos':'% jocs','% juegos ganados':'% jocs guanyats','% partidos':'% partits','% partidos ganados':'% partits guanyats','% victorias':'% victòries',
 'Abrir jornada':'Obre la jornada','Alineaciones':'Alineacions','Calendario':'Calendari','Clasificación':'Classificació','Clasificación final de la liga':'Classificació final de la lliga',
-'Con nuestros resultados':'Amb els nostres resultats','Contra nosotros':'Contra nosaltres','Convocado':'Convocat','Convocar':'Convoca','Convocatoria':'Convocatòria','Copiar convocatoria':'Copia la convocatòria',
+'Con nuestros resultados':'Amb els nostres resultats','Contra nosotros':'Contra nosaltres','Convocado':'Convocat','Convocar':'Convoca','Convocatoria':'Convocatòria','Copiar convocatoria':'Copia la convocatòria','Copiar parejas':'Copia les parelles','Parejas copiadas. Pégalas en WhatsApp o en un correo.':'Parelles copiades. Enganxa-les al WhatsApp o en un correu.','Todavía no hay parejas en esta jornada.':'Encara no hi ha parelles en aquesta jornada.',
 'Datos de la web de la federación':'Dades del web de la federació','Datos de la web de la federación.':'Dades del web de la federació.','Descanso':'Descans','Dif. juegos por partido':'Dif. jocs per partit',
 'Disponibilidad':'Disponibilitat','Disponibilidad y convocatoria':'Disponibilitat i convocatòria','Duda':'Dubte','Elegir jugador':'Tria jugador','Elige tu nombre':'Tria el teu nom',
 'Elige tu nombre. Solo se pide la primera vez en este teléfono.':'Tria el teu nom. Només es demana la primera vegada en aquest telèfon.',

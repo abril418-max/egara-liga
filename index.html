@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- datos:ebfce047427a61ba -->
+<!-- datos:231f47697bac561e -->
 <html lang="es">
 <head>
 <title>Club Egara · Penya Arlequinada</title>
@@ -631,7 +631,7 @@ function vJornada(id){
     </tbody></table></div>`:'<p class="muted">Añade jugadores en la pestaña Jugadores.</p>'}
   </section>
   <section class="stack" style="gap:10px">
-    <h3>Partidos y resultados</h3>
+    <div class="row between"><h3>Partidos y resultados</h3><button class="btn small" type="button" data-act="copiar-parejas" data-id="${jo.id}">Copiar parejas</button></div>
     <p class="muted" style="margin:0">Anota los juegos de cada set desde el punto de vista de tu equipo${S.config.stb?'; el tercer set es el super tie-break (a 10 puntos)':''}.</p>
     <div class="pistas">${ps.map((p,i)=>`<div class="pista">
       <div class="row between"><h3>Pista ${i+1}</h3><span id="pChip${i}">${chipPartido(p)}</span></div>
@@ -704,9 +704,19 @@ function mConfig(){
     <label class="check"><input id="f-stb" type="checkbox" name="stb"${c.stb?' checked':''}> El tercer set es super tie-break</label>
     <div class="row"><button class="btn" type="submit">Guardar</button><button class="btn sec" type="button" data-act="cerrar">Cancelar</button></div></form>`);
 }
+function cabeceraJornada(jo,ca){
+  return `${S.config.nombre||'Equipo'} · Jornada ${jo.numero||''}\n${fFecha(jo.fecha,true)}${jo.hora?(ca?' a les ':' a las ')+jo.hora:''}\nvs ${jo.rival||(ca?'rival per definir':'rival por definir')} (${jo.local===false?(ca?'fora':'fuera'):(ca?'a casa':'en casa')})${jo.sede?' · '+jo.sede:''}`;
+}
 function textoConvocatoria(jo){
-  const conv=(jo.conv||[]).map(nombre);
-  return `${S.config.nombre||'Equipo'} · Jornada ${jo.numero||''}\n${fFecha(jo.fecha,true)}${jo.hora?' a las '+jo.hora:''}\nvs ${jo.rival||'rival por definir'} (${jo.local===false?'fuera':'en casa'})${jo.sede?' · '+jo.sede:''}\n\nConvocados:\n${conv.length?conv.map(n=>'- '+n).join('\n'):'- (sin convocados)'}${jo.notas?'\n\n'+jo.notas:''}`;
+  const ca=window.__LOC==='ca-ES';const conv=(jo.conv||[]).map(nombre);
+  return `${cabeceraJornada(jo,ca)}\n\n${ca?'Convocats':'Convocados'}:\n${conv.length?conv.map(n=>'- '+n).join('\n'):(ca?'- (sense convocats)':'- (sin convocados)')}${jo.notas?'\n\n'+jo.notas:''}`;
+}
+function textoParejas(jo){
+  const ca=window.__LOC==='ca-ES';const ps=partidosDe(jo).filter(p=>p.a||p.b);if(!ps.length)return '';
+  const usados=new Set();
+  const lineas=partidosDe(jo).map((p,i)=>{if(p.a)usados.add(p.a);if(p.b)usados.add(p.b);return `Pista ${i+1}: ${p.a?nombre(p.a):'—'} / ${p.b?nombre(p.b):'—'}`});
+  const reservas=(jo.conv||[]).filter(id=>!usados.has(id)).map(nombre);
+  return `${cabeceraJornada(jo,ca)}\n\n${ca?'Parelles':'Parejas'}:\n${lineas.join('\n')}${reservas.length?`\n\n${ca?'Reserves':'Reservas'}: ${reservas.join(', ')}`:''}`;
 }
 
 /* ---------- Eventos ---------- */
@@ -733,9 +743,11 @@ document.addEventListener('click',e=>{
     case 'disp':{jo.disp=jo.disp||{};const v=t.dataset.v;jo.disp[t.dataset.p]=jo.disp[t.dataset.p]===v?'':v;save('jornadas',jo);render();break}
     case 'conv':{const c=new Set(jo.conv||[]);c.has(t.dataset.p)?c.delete(t.dataset.p):c.add(t.dataset.p);jo.conv=[...c];save('jornadas',jo);render();break}
     case 'convocar-disp':{const c=new Set(jo.conv||[]);Object.entries(jo.disp||{}).forEach(([p,v])=>{if(v==='si')c.add(p)});jo.conv=[...c];save('jornadas',jo);render();toast('Convocados todos los disponibles');break}
-    case 'copiar-conv':{const txt=textoConvocatoria(jo);
-      const fallback=()=>{openModal(`<div class="form"><h2>Convocatoria</h2><p class="muted" style="margin:0">Selecciona el texto y cópialo.</p><textarea class="copy" id="f-copy" readonly>${esc(txt)}</textarea><div class="row"><button class="btn sec" type="button" data-act="cerrar">Cerrar</button></div></div>`);const ta=$('#f-copy');ta.focus();ta.select()};
-      try{navigator.clipboard.writeText(txt).then(()=>toast('Convocatoria copiada. Pégala en WhatsApp o en un correo.'),fallback)}catch(err){fallback()}break}
+    case 'copiar-conv':
+    case 'copiar-parejas':{const esPar=a==='copiar-parejas';const txt=esPar?textoParejas(jo):textoConvocatoria(jo);
+      if(!txt){toast('Todavía no hay parejas en esta jornada.');break}
+      const fallback=()=>{openModal(`<div class="form"><h2>${esPar?'Parejas':'Convocatoria'}</h2><p class="muted" style="margin:0">Selecciona el texto y cópialo.</p><textarea class="copy" id="f-copy" readonly>${esc(txt)}</textarea><div class="row"><button class="btn sec" type="button" data-act="cerrar">Cerrar</button></div></div>`);const ta=$('#f-copy');ta.focus();ta.select()};
+      try{navigator.clipboard.writeText(txt).then(()=>toast(esPar?'Parejas copiadas. Pégalas en WhatsApp o en un correo.':'Convocatoria copiada. Pégala en WhatsApp o en un correo.'),fallback)}catch(err){fallback()}break}
     case 'borrar-jugador':
     case 'borrar-jornada':
     case 'borrar-ejemplos':{
@@ -855,7 +867,7 @@ document.documentElement.lang=LANG;
 const CA_EXACT={
 '% juegos':'% jocs','% juegos ganados':'% jocs guanyats','% partidos':'% partits','% partidos ganados':'% partits guanyats','% victorias':'% victòries',
 'Abrir jornada':'Obre la jornada','Alineaciones':'Alineacions','Calendario':'Calendari','Clasificación':'Classificació','Clasificación final de la liga':'Classificació final de la lliga',
-'Con nuestros resultados':'Amb els nostres resultats','Contra nosotros':'Contra nosaltres','Convocado':'Convocat','Convocar':'Convoca','Convocatoria':'Convocatòria','Copiar convocatoria':'Copia la convocatòria',
+'Con nuestros resultados':'Amb els nostres resultats','Contra nosotros':'Contra nosaltres','Convocado':'Convocat','Convocar':'Convoca','Convocatoria':'Convocatòria','Copiar convocatoria':'Copia la convocatòria','Copiar parejas':'Copia les parelles','Parejas copiadas. Pégalas en WhatsApp o en un correo.':'Parelles copiades. Enganxa-les al WhatsApp o en un correu.','Todavía no hay parejas en esta jornada.':'Encara no hi ha parelles en aquesta jornada.',
 'Datos de la web de la federación':'Dades del web de la federació','Datos de la web de la federación.':'Dades del web de la federació.','Descanso':'Descans','Dif. juegos por partido':'Dif. jocs per partit',
 'Disponibilidad':'Disponibilitat','Disponibilidad y convocatoria':'Disponibilitat i convocatòria','Duda':'Dubte','Elegir jugador':'Tria jugador','Elige tu nombre':'Tria el teu nom',
 'Elige tu nombre. Solo se pide la primera vez en este teléfono.':'Tria el teu nom. Només es demana la primera vegada en aquest telèfon.',
@@ -938,6 +950,6 @@ function ponerBotonIdioma(){
 const RO=new Set(["config", "nuevo-jugador", "editar-jugador", "nueva-jornada", "editar-jornada", "disp", "conv", "convocar-disp", "borrar-jugador", "borrar-jornada", "borrar-ejemplos"]);(function(){const D=window.__DATA;S.jugadores=D.jugadores;S.jornadas=D.jornadas;S.config=D.config;S.liga={clas:D.clas,cal:D.cal,jug:D.jug,plant:D.plant,t2526:D.t2526};S.loaded={jugadores:true,jornadas:true};S.mode='static';S.tab=window.__DISP_URL?'mia':'resumen';document.body.classList.add('ro');const _r=render;render=function(){_r();document.querySelectorAll('#main input[data-score],#main select[data-pair]').forEach(x=>x.disabled=true);traducir(document.body)};ponerBotonIdioma();render();cargarRemoto()})();
 </script>
 
-<footer class="wrap muted" style="padding-block:0 32px;font-size:12px">Versión de consulta. Actualizado el 01/10/2026 07:56.</footer>
+<footer class="wrap muted" style="padding-block:0 32px;font-size:12px">Versión de consulta. Actualizado el 01/10/2026 08:12.</footer>
 </body>
 </html>
