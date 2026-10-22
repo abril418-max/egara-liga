@@ -290,6 +290,7 @@ function bannerEjemplo(){
 function vResumen(){
   if(!S.jugadores.length&&!S.jornadas.length)return `<div class="panel empty"><h2>Empieza por la plantilla</h2><p>Añade los jugadores del equipo y después crea la primera jornada con su rival y fecha.</p><div class="row" style="justify-content:center;margin-top:12px"><button class="btn" type="button" data-act="nuevo-jugador">Añadir jugador</button><button class="btn sec" type="button" data-act="nueva-jornada">Crear jornada</button></div></div>`;
   const {J,T}=stats();const px=proxima();
+  const fp=filaPropia();if(fp){T.jg=fp.EG;T.jp=fp.EP;T.je=fp.EE;T.pg=fp.PG;T.pp=fp.PP}
   const pp=pct(T.pg,T.pg+T.pp);
   let prox='<p class="muted">No hay jornadas pendientes. Crea la siguiente desde la pestaña Jornadas.</p>';
   if(px){const c=dispCounts(px);const conv=(px.conv||[]).map(nombre);
@@ -299,11 +300,19 @@ function vResumen(){
       <div class="counts"><span class="chip win">${c.si} disponibles</span><span class="chip maybe">${c.duda} en duda</span><span class="chip loss">${c.no} no pueden</span><span class="chip pend">${c.sin} sin respuesta</span></div>
       <div><div class="label">Convocados (${conv.length} de ${partidosDe(px).length*2} necesarios)</div><div>${conv.length?esc(conv.join(', ')):'<span class="muted">Todavía nadie</span>'}</div></div>
       <div><button class="btn" type="button" data-act="abrir-jornada" data-id="${px.id}">Abrir jornada</button></div></div>`}
-  const jugadas=jornadasOrd().filter(j=>resJornada(j).jugada).reverse().slice(0,5);
+  let jugadas=jornadasOrd().filter(j=>resJornada(j).jugada).reverse().slice(0,5);
+  const mioL=miEquipo();const calL=(S.liga.cal&&S.liga.cal.jornadas)||[];
+  if(mioL&&calL.length){const provL={};encuentrosApp().forEach(e=>provL[e.jornada]=e);
+    jugadas=calL.map(cj=>{const fx=cj.partidos.find(x=>x.local===mioL||x.visitante===mioL);if(!fx)return null;
+      const r=(fx.res&&fx.res!=='-')?fx.res:(provL[cj.j]?provL[cj.j].res:null);if(!r)return null;
+      const casa=fx.local===mioL;const [ra,rb]=r.split(':').map(Number);const n=casa?ra:rb,v=casa?rb:ra;
+      const jo=S.jornadas.find(x=>+x.numero===cj.j)||{id:'',numero:cj.j,fecha:'',rival:casa?fx.visitante:fx.local,local:casa};
+      return {...jo,__res:{n,v,casa,rival:casa?fx.visitante:fx.local,fecha:cj.fecha,prov:!(fx.res&&fx.res!=='-')}}}).filter(Boolean).reverse().slice(0,5);}
   const top=S.jugadores.map(p=>({p,s:J[p.id]})).filter(x=>x.s.pj>0).sort((a,b)=>(b.s.g/b.s.pj-a.s.g/a.s.pj)||b.s.pj-a.s.pj).slice(0,5);
+  if(mioL&&(S.liga.jug||encuentrosApp().length)){const rkL=rankJug().filter(x=>x.equipo===mioL).sort((a,b)=>(b.pct-a.pct)||(b.PJ-a.PJ)||(b.pjg-a.pjg)).slice(0,5);if(rkL.length)top.splice(0,top.length,...rkL.map(x=>({p:{nombre:x.nombre},s:{pj:x.PJ,g:x.PG,p:x.PP}})));}
   return `<div class="stack">${bannerEjemplo()}
     <div class="kpis">
-      <div class="kpi"><span class="label">Jornadas G–P</span><b>${T.jg}–${T.jp}</b></div>
+      <div class="kpi"><span class="label">Jornadas G–P</span><b>${T.jg}–${T.jp}${T.je?` <span style="font-size:15px" class="muted">(${T.je} emp.)</span>`:''}</b></div>
       <div class="kpi"><span class="label">Partidos G–P</span><b>${T.pg}–${T.pp}</b></div>
       <div class="kpi"><span class="label">% partidos ganados</span><b>${pp===null?'—':pp+'%'}</b></div>
       ${(()=>{const f=filaPropia();return f?`<button class="kpi" type="button" data-act="tab" data-k="liga" style="text-align:left;cursor:pointer"><span class="label">Posición en la liga${f.prov?' (provisional)':''}</span><b>${esc(f.pos)} · ${esc(f.P)} pts</b></button>`:`<div class="kpi"><span class="label">Plantilla activa</span><b>${S.jugadores.filter(p=>p.activo!==false).length}</b></div>`})()}
@@ -311,7 +320,8 @@ function vResumen(){
     <div class="grid2">
       <section class="panel"><h3 style="margin-bottom:10px">Próxima jornada</h3>${prox}</section>
       <section class="panel"><h3 style="margin-bottom:10px">Últimos resultados</h3>
-        ${jugadas.length?`<div class="jlist">${jugadas.map(j=>`<button class="jitem" type="button" data-act="abrir-jornada" data-id="${j.id}" style="grid-template-columns:1fr auto;padding:8px 12px"><span class="main"><span class="rival">J${esc(j.numero||'')} · vs ${esc(j.rival||'—')}</span><span class="muted" style="font-size:13px;display:block">${esc(fFecha(j.fecha))} · ${j.local===false?'Fuera':'Casa'}</span></span>${chipJornada(j)}</button>`).join('')}</div>`:'<p class="muted">Aún no hay resultados.</p>'}
+        ${jugadas.length?`<div class="jlist">${jugadas.map(j=>{const R=j.__res;const chip=R?`<span class="chip ${R.n>R.v?'win':R.n<R.v?'loss':'maybe'}">${R.n>R.v?'Ganada':R.n<R.v?'Perdida':'Empate'} ${R.n}–${R.v}</span>${R.prov?' <span class="chip maybe">provisional</span>':''}`:chipJornada(j);
+          return `<button class="jitem" type="button" data-act="abrir-jornada" data-id="${j.id}" style="grid-template-columns:1fr auto;padding:8px 12px"><span class="main"><span class="rival">J${esc(j.numero||'')} · vs ${esc(R?R.rival:(j.rival||'—'))}</span><span class="muted" style="font-size:13px;display:block">${esc(R?R.fecha:fFecha(j.fecha))} · ${(R?!R.casa:j.local===false)?'Fuera':'Casa'}</span></span><span>${chip}</span></button>`}).join('')}</div>`:'<p class="muted">Aún no hay resultados.</p>'}
       </section>
     </div>
     <section class="stack" style="gap:10px"><div class="row between"><h3>Mejores porcentajes</h3><button class="link" type="button" data-act="tab" data-k="jugadores">Ver todos los jugadores</button></div>
