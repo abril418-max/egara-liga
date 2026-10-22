@@ -275,7 +275,14 @@ function dispCounts(jo){const c={si:0,duda:0,no:0,sin:0};activos(jo).forEach(p=>
 function activos(jo){return S.jugadores.filter(p=>p.activo!==false||(jo&&((jo.disp||{})[p.id]||(jo.conv||[]).includes(p.id)))).sort((a,b)=>a.nombre.localeCompare(b.nombre,'es'))}
 
 /* ---------- Vistas ---------- */
-function render(){
+/* Correcciones manuales a actas oficiales (p.ej. jugador no inscrito que sale como Vacante) */
+function aplicarCorrecciones(){
+  const cs=(S.config&&S.config.correcciones)||[];const encs=(S.liga.jug&&S.liga.jug.encuentros)||[];
+  for(const c of cs){const e=encs.find(x=>String(x.game)===String(c.game));if(!e)continue;
+    const pa=e.partidos.find(x=>+x.pista===+c.pista);if(!pa)continue;
+    for(const l of ['L','V']){const i=pa[l].indexOf(c.de);if(i>=0)pa[l][i]=c.a}}
+}
+function render(){aplicarCorrecciones();
   $('#tNombre').textContent=S.config.nombre||'Mi equipo';
   $('#tTemp').textContent=S.config.temporada?('Temporada '+S.config.temporada):'Liga por equipos · dobles';
   $('#tabs').innerHTML=TABS.map(([k,t])=>`<button type="button" role="tab" data-act="tab" data-k="${k}" aria-selected="${S.tab===k}">${t}</button>`).join('');
