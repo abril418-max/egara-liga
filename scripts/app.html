@@ -411,7 +411,7 @@ function statsFrom(encs){
     for(const p of e.partidos){
       for(const lado of ['L','V']){
         const eq=lado==='L'?e.local:e.visitante;const gana=p.ganador===lado;
-        for(const n of p[lado]){
+        for(const n of p[lado]){if(!n||n==="Vacante")continue;
           const k=eq+'|'+n;const x=P[k]=P[k]||{nombre:n,equipo:eq,PJ:0,PG:0,PP:0,SG:0,SP:0,JG:0,JP:0,RET:0,PL:0,PV:0,pistas:[],parejas:[]};
           if(e.provisional)x.prov=true;
           x.PJ++;gana?x.PG++:x.PP++;lado==='L'?x.PL++:x.PV++;if(p.retirada)x.RET++;
