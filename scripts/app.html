@@ -280,7 +280,7 @@ function aplicarCorrecciones(){
   const cs=(S.config&&S.config.correcciones)||[];const encs=(S.liga.jug&&S.liga.jug.encuentros)||[];
   for(const c of cs){const e=encs.find(x=>String(x.game)===String(c.game));if(!e)continue;
     const pa=e.partidos.find(x=>+x.pista===+c.pista);if(!pa)continue;
-    for(const l of ['L','V']){const i=pa[l].indexOf(c.de);if(i>=0)pa[l][i]=c.a}}
+    if(c.sets)pa.sets=c.sets.map(x=>({...x}));if(c.de)for(const l of ['L','V']){const i=pa[l].indexOf(c.de);if(i>=0)pa[l][i]=c.a}}
 }
 function render(){aplicarCorrecciones();
   $('#tNombre').textContent=S.config.nombre||'Mi equipo';

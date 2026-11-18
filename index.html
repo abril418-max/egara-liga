@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- datos:4859d085e2578321 -->
+<!-- datos:f0fb45ffcbc25db4 -->
 <html lang="es">
 <head>
 <title>Club Egara · Penya Arlequinada</title>
@@ -303,7 +303,7 @@ function aplicarCorrecciones(){
   const cs=(S.config&&S.config.correcciones)||[];const encs=(S.liga.jug&&S.liga.jug.encuentros)||[];
   for(const c of cs){const e=encs.find(x=>String(x.game)===String(c.game));if(!e)continue;
     const pa=e.partidos.find(x=>+x.pista===+c.pista);if(!pa)continue;
-    for(const l of ['L','V']){const i=pa[l].indexOf(c.de);if(i>=0)pa[l][i]=c.a}}
+    if(c.sets)pa.sets=c.sets.map(x=>({...x}));if(c.de)for(const l of ['L','V']){const i=pa[l].indexOf(c.de);if(i>=0)pa[l][i]=c.a}}
 }
 function render(){aplicarCorrecciones();
   $('#tNombre').textContent=S.config.nombre||'Mi equipo';
@@ -975,6 +975,6 @@ document.addEventListener('submit',e=>{
 const RO=new Set(["config", "nuevo-jugador", "editar-jugador", "nueva-jornada", "editar-jornada", "disp", "conv", "convocar-disp", "borrar-jugador", "borrar-jornada", "borrar-ejemplos"]);(function(){const D=window.__DATA;S.jugadores=D.jugadores;S.jornadas=D.jornadas;S.config=D.config;S.liga={clas:D.clas,cal:D.cal,jug:D.jug,plant:D.plant,t2526:D.t2526};S.loaded={jugadores:true,jornadas:true};S.mode='static';S.tab=window.__DISP_URL?'mia':'resumen';document.body.classList.add('ro');const _r=render;render=function(){_r();document.querySelectorAll('#main input[data-score],#main select[data-pair]').forEach(x=>x.disabled=true)};render();cargarRemoto()})();
 </script>
 
-<footer class="wrap muted" style="padding-block:0 32px;font-size:12px">Versión de consulta. Actualizado el 18/11/2026 14:42.</footer>
+<footer class="wrap muted" style="padding-block:0 32px;font-size:12px">Versión de consulta. Actualizado el 18/11/2026 14:46.</footer>
 </body>
 </html>
