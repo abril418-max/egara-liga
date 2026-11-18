@@ -1,14 +1,14 @@
 <title>Liga de Dobles</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: cabecera de pista (azul pista dura con líneas de dobles), pestañas, contenido en una columna de 1080px máx. */
 :root{
   --bg:#eef2f6; --surface:#ffffff; --surface-2:#f6f8fb; --ink:#14202e; --muted:#5a6778; --line:#d6dde6;
   --accent:#1d4e89; --accent-ink:#ffffff; --ball:#d6e31f; --ball-ink:#1d2a05;
   --win:#1c7a48; --win-bg:#e3f3ea; --loss:#b3372f; --loss-bg:#f8e6e4; --maybe:#9a6a0c; --maybe-bg:#f7eed9;
-  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
-  --body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --display:"Fira Sans","Segoe UI",system-ui,sans-serif;
+  --body:"Fira Sans","Segoe UI",system-ui,sans-serif;
   --r:10px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -29,17 +29,17 @@ button,input,select,textarea{font:inherit;color:inherit}
 .top{background:#1d4e89;color:#fff;position:relative}
 .top::after{content:"";position:absolute;left:0;right:0;bottom:6px;height:2px;background:rgba(255,255,255,.85);box-shadow:0 5px 0 rgba(255,255,255,.55)}
 .top .wrap{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-block:18px 26px;flex-wrap:wrap}
-.brand h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,40px);line-height:1;margin:0;letter-spacing:.01em;text-wrap:balance}
+.brand h1{font-family:var(--display);font-weight:700;font-size:clamp(26px,5vw,38px);line-height:1.05;margin:0;letter-spacing:0;text-wrap:balance}
 .brand p{margin:4px 0 0;font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.85}
 .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.6);color:#fff;border-radius:8px;padding:7px 12px;cursor:pointer;font-size:14px;white-space:nowrap}
 .btn-ghost:hover{background:rgba(255,255,255,.12)}
 nav.tabs{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
 nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
-nav.tabs button{background:none;border:0;padding:12px 12px 10px;cursor:pointer;font-family:var(--display);font-size:18px;font-weight:600;letter-spacing:.02em;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
+nav.tabs button{background:none;border:0;padding:12px 12px 10px;cursor:pointer;font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:0;color:var(--muted);border-bottom:3px solid transparent;white-space:nowrap}
 nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 main{padding-block:20px 60px}
-h2{font-family:var(--display);font-weight:600;font-size:24px;margin:0;letter-spacing:.01em;text-wrap:balance}
-h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0;letter-spacing:.02em}
+h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0;letter-spacing:0;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0;letter-spacing:0}
 .label{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
 .muted{color:var(--muted)}
 .stack{display:flex;flex-direction:column;gap:18px}
@@ -60,7 +60,7 @@ h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0;letter-spa
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media (max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
 .kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
-.kpi b{display:block;font-family:var(--display);font-size:32px;font-weight:600;line-height:1.1}
+.kpi b{display:block;font-family:var(--display);font-size:28px;font-weight:600;line-height:1.1}
 /* Chips */
 .chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 9px;font-size:13px;font-weight:600;white-space:nowrap}
 .chip.win{background:var(--win-bg);color:var(--win)}
