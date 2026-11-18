@@ -21,7 +21,7 @@ jug=[{k:v for k,v in p.items() if k!='telefono'} for p in rd(D('jugadores'))]
 jor=rd(D('jornadas'))
 cfg={'nombre':'Club Egara','temporada':'2026-27','pistas':4,'stb':True}
 c=one('config','equipo.json')
-if c: cfg.update({k:c[k] for k in ('nombre','temporada','pistas','stb') if k in c})
+if c: cfg.update({k:c[k] for k in ('nombre','temporada','pistas','stb','correcciones') if k in c})
 data={'jugadores':jug,'jornadas':jor,'config':cfg,
  'clas':one('liga','clasificacion.json'),'cal':one('liga','calendario.json'),'jug':one('liga','actas.json'),'plant':one('liga','plantillas.json'),'t2526':one('historico','t2526.json')}
 import hashlib
